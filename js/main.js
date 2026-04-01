@@ -237,20 +237,161 @@
 //     .then((finalResult) => console.log("Финальный результат:", finalResult))
 //     .catch((error) => console.log("Ошибка в цепочке:", error));
 
-function checkInventory(inStock) {
+// function checkInventory(inStock) {
+//     return new Promise((resolve, reject) => {
+//         if (inStock) {
+//             resolve("Товар в наличии");
+//         } else {
+//             reject("Товара нет в наличии");
+//         }
+//     });
+// }
+
+// checkInventory(true)
+//     .then((message) => console.log(message))
+//     .catch((error) => console.log(error));
+
+// checkInventory(false)
+//     .then((message) => console.log(message))
+//     .catch((error) => console.log(error));
+
+// console.log("Async/Await");
+
+// async function greet() {
+//     return "Привет!";
+// }
+
+// greet().then((message) => console.log(message));
+
+// function getWeather() {
+//     return new Promise((resolve) => {
+//         setTimeout(() => {
+//             resolve({ temp: 22, condition: "Солнечно" });
+//         }, 1000);
+//     });
+// }
+
+// async function showWeather() {
+//     console.log("Загрузка погоды...");
+//     const weather = await getWeather();
+//     console.log(`Температура: ${weather.temp}°C, ${weather.condition}`);
+// }
+
+// showWeather();
+
+// async function fetchData(shouldFail) {
+//     return new Promise((resolve, reject) => {
+//         setTimeout(() => {
+//             if (shouldFail) {
+//                 reject("Ошибка при загрузке данных");
+//             } else {
+//                 resolve({ data: "Важные данные" });
+//             }
+//         }, 800);
+//     });
+// }
+
+// async function getData() {
+//     try {
+//         const result = await fetchData(false);
+//         console.log("Успешно:", result.data);
+
+//         const failedResult = await fetchData(true);
+//         console.log("Это не выполнится");
+//     } catch (error) {
+//         console.log("Поймана ошибка:", error);
+//     }
+// }
+
+// getData();
+
+// async function cookDinner() {
+//     console.log("Начинаем готовить...");
+
+//     const pasta = await delay(1000).then(() => "Паста готова");
+//     console.log(pasta);
+
+//     const sauce = await delay(500).then(() => "Соус готов");
+//     console.log(sauce);
+
+//     const salad = await delay(700).then(() => "Салат готов");
+//     console.log(salad);
+
+//     return "Ужин готов!";
+// }
+
+// cookDinner().then((result) => console.log(result));
+
+// async function cookDinnerFast() {
+//     console.log("Готовим всё одновременно...");
+
+//     const [pasta, sauce, salad] = await Promise.all([
+//         delay(1000).then(() => "Паста готова"),
+//         delay(500).then(() => "Соус готов"),
+//         delay(700).then(() => "Салат готов")
+//     ]);
+
+//     console.log(pasta, sauce, salad);
+//     return "Ужин готов быстрее!";
+// }
+
+// cookDinnerFast().then((result) => console.log(result));
+
+
+function checkStock(product) {
     return new Promise((resolve, reject) => {
-        if (inStock) {
-            resolve("Товар в наличии");
-        } else {
-            reject("Товара нет в наличии");
-        }
+        setTimeout(() => {
+            const inStock = product === "Ноутбук";
+            if (inStock) {
+                resolve({ product, available: true });
+            } else {
+                reject("Товар отсутствует на складе");
+            }
+        }, 800);
     });
 }
 
-checkInventory(true)
-    .then((message) => console.log(message))
-    .catch((error) => console.log(error));
+function calculatePrice(product) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const prices = { "Ноутбук": 75000, "Телефон": 30000 };
+            resolve({ product, price: prices[product] || 0 });
+        }, 600);
+    });
+}
 
-checkInventory(false)
-    .then((message) => console.log(message))
-    .catch((error) => console.log(error));
+function confirmOrder(order) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ ...order, confirmed: true, orderId: Math.floor(Math.random() * 10000) });
+        }, 500);
+    });
+}
+
+async function processOrder(product) {
+    try {
+        console.log(`Начинаем обработку заказа для: ${product}`);
+        
+        const stock = await checkStock(product);
+        console.log("Проверка наличия:", stock);
+        
+        const priceInfo = await calculatePrice(product);
+        console.log("Расчёт стоимости:", priceInfo.price, "руб.");
+        
+        const order = await confirmOrder(priceInfo);
+        console.log("Подтверждение заказа:", order);
+        
+        console.log(`Заказ ${order.orderId} успешно оформлен!`);
+        return order;
+    } catch (error) {
+        console.log("Ошибка при обработке заказа:", error);
+        throw error;
+    }
+}
+
+processOrder("Ноутбук").then((result) => {
+    console.log("Результат:", result);
+}).catch((error) => {
+    console.log("Заказ не оформлен:", error);
+});
+
