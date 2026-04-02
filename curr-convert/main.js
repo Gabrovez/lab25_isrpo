@@ -11,21 +11,45 @@ function convertCurrency() {
   const fromCurrency = document.getElementById('fromCurrency').value;
   const toCurrency = document.getElementById('toCurrency').value;
   const resultDiv = document.getElementById('result');
+  const errorP = document.getElementById('errorMessage');
 
-  const amount = parseFloat(amountInput.value);
+  const inputValue = amountInput.value.trim();
+  const amount = parseFloat(inputValue);
   
+  if (!inputValue) {
+    errorP.textContent = 'Ошибка: Введите сумму.';
+    errorP.style.display = 'block';
+    resultDiv.style.display = 'none';
+    return;
+  }
+
+  if (isNaN(amount) || amount <= 0) {
+    errorP.textContent = 'Ошибка: Сумма должна быть положительным числом.';
+    errorP.style.display = 'block';
+    resultDiv.style.display = 'none';
+    return;
+  }
+
+  errorP.style.display = 'none';
+
   let convertedAmount;
   if (fromCurrency === toCurrency) {
     convertedAmount = amount;
   } else {
-    const rate = exchangeRates[fromCurrency][toCurrency];
+    const rate = exchangeRates[fromCurrency]?.[toCurrency];
+    if (!rate) {
+      errorP.textContent = 'Ошибка: Курс не найден.';
+      errorP.style.display = 'block';
+      resultDiv.style.display = 'none';
+      return;
+    }
     convertedAmount = amount * rate;
   }
 
   resultDiv.innerHTML = `
     <strong>Результат:</strong><br>
-    ${amount} ${fromCurrency} = 
-    <span style="font-size: 1.2em; color: #2196F3;">${convertedAmount} ${toCurrency}</span>
+    ${amount.toFixed(2)} ${fromCurrency} = 
+    <span style="font-size: 1.2em; color: #2196F3;">${convertedAmount.toFixed(2)} ${toCurrency}</span>
   `;
   resultDiv.style.display = 'block';
 }
